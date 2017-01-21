@@ -1,34 +1,21 @@
 package screen;
 
-import java.awt.Color;
 import java.awt.Component;
-import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.Event;
 import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.awt.event.MouseWheelListener;
-import java.util.Random;
-
-import javax.swing.JComponent;
 import javax.swing.JFrame;
 
 
-public abstract class Screen extends Component implements Runnable, KeyListener, MouseListener, MouseMotionListener{
-
-	public static void main(String[] args)  {
-		MyScreen ms = new MyScreen();
-		
-	}
+@SuppressWarnings("serial")
+public abstract class Screen extends Component implements KeyListener, MouseListener, MouseMotionListener{
 	
 	private JFrame frame;
-	private Thread loop_thread;
 	
-	private int fps = -1;
 	
 	private boolean[] keys = new boolean[256];
 	
@@ -63,47 +50,6 @@ public abstract class Screen extends Component implements Runnable, KeyListener,
 		super.paint(g);
 		onEachFrame(g);
 	}
-
-	public void run(){
-		while(true){
-			repaint();
-			try {
-				int sleep_time = getFrameTime();
-				if(sleep_time>0){
-					Thread.sleep(sleep_time);
-				}
-			} catch (InterruptedException e) {	}
-		}
-	}
-	
-	public int getTimePerFrame(){
-		if(fps>0){
-			return 1000/fps;
-		}
-		return 0;
-	}
-	
-	public int getFrameTime(){
-		//TODO get the time for the next frame
-		//if fps = -1 return 0;
-		return 0;
-	}
-	
-	public int getElapsedFrameTime(){
-		//TODO get the time pasts from the last frame
-		return 0;
-	}
-	
-	public void setAutoRepaint(int n){// n for the times per second
-		//TODO check if loop_thread is running or have to be created before setting the time
-		//setfps
-	}
-	
-	public void repaint(){
-		if(fps<=0){
-			super.repaint();
-		}
-	}
 		
 	public boolean isPressed(int key){
 		//TODO Check key value
@@ -115,8 +61,12 @@ public abstract class Screen extends Component implements Runnable, KeyListener,
 	}
 	
 	public void close(){
-		loop_thread = null;
 		frame.dispose();
+	}
+	
+	public boolean dealy(int ms){
+		//TODO 
+		return false;
 	}
 	
 	public abstract void onEachFrame(Graphics g) ;
@@ -163,20 +113,5 @@ public abstract class Screen extends Component implements Runnable, KeyListener,
 	@Override
 	public void keyTyped(KeyEvent e) {}
 
-}
-
-class MyScreen extends Screen{
-
-	public MyScreen() {
-		super("Test", 600, 400);
-		// TODO Auto-generated constructor stub
-	}
-
-	@Override
-	public void onEachFrame(Graphics g) {
-		Random r = new Random();
-		g.setColor(new Color(r.nextInt()));
-		g.fillRect(r.nextInt(200), r.nextInt(200), r.nextInt(400), r.nextInt(200));
-	}
 	
 }

@@ -4,30 +4,38 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.util.Random;
+
+import screen.AutoRefreshScreen;
 import screen.Screen;
 
-public class VisualSortingDemo extends Screen{
+public class VisualSortingDemo extends AutoRefreshScreen{
 
 	public static void main(String[] args) {
 		Random r = new Random();
-		int[] ex = new int[r.nextInt(400)];
+		int[] ex = new int[800];
 		for(int i=0; i<ex.length; i++){
 			ex[i] = r.nextInt(600);
 		}
 		new VisualSortingDemo(ex);
 	}
+	
+	private int steps = 0;
 	private boolean done = false;
 	private int[] array;
 	private Random random= new Random();
 	private long start, end;
+	private int fps = 0;
+	private long last_frame = 0;
 	
 	public VisualSortingDemo(int[] ex) {
-		super("Sorting Data Visually", 800, 600);
+		super("Sorting Data Visually", 800, 600, 30);
 		array = ex;
 		start = System.currentTimeMillis();
-		merge_sort(0, array.length-1);
+		bubble_sort();
+//		merge_sort(0, array.length-1);
 		end = System.currentTimeMillis();
 		done = true;
+		last_frame = System.currentTimeMillis();
 		repaint();
 	}
 
@@ -57,22 +65,29 @@ public class VisualSortingDemo extends Screen{
 //			System.out.println(time+" s to sort "+array.length+" numbers");
 			g.setColor(Color.WHITE);
 			g.setFont(new Font("Arial", Font.BOLD, 30));
-			g.drawString(time+" s to sort "+array.length+" numbers", 100, 50);
+			g.drawString(time+" s to sort "+array.length+" numbers  ("+steps+" steps)", 100, 50);
+		}
+		fps++;
+		if(System.currentTimeMillis()-last_frame>=1000){
+			System.out.println(fps);
+			fps=0;
+			last_frame = System.currentTimeMillis();
 		}
 	}
 	
 	public void bubble_sort(){
 		for(int i=0; i<array.length; i++){
 			repaint();
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException ex) {}
+//			try {
+//				Thread.sleep(100);
+//			} catch (InterruptedException ex) {}
 			for(int j = 1; j < (array.length - i); j++) {
 				if(array[j-1]>array[j]){
 					int temp = array[j-1];
 					array[j-1] = array[j];
 					array[j] = temp;
 				}
+				steps++;
 			}
 		}
 	}
@@ -82,6 +97,7 @@ public class VisualSortingDemo extends Screen{
 			return;
 		}
 		else{
+			
 			int m = s+(e-s)/2;
 //			System.out.println(s+"  "+m+"  "+e);
 			merge_sort(s, m);
@@ -105,12 +121,14 @@ public class VisualSortingDemo extends Screen{
 				}
 			}
 			for(int i=s; i<=e; i++){
+				steps++;
 				array[i] = t[i-s];
 			}
 			repaint();
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException ex) {}
+//			try {
+//				Thread.sleep(100);
+//			} catch (InterruptedException ex) {}
 		}
 	}
+
 }
