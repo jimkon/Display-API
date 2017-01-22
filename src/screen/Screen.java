@@ -23,6 +23,8 @@ public abstract class Screen extends Component implements KeyListener, MouseList
 	
 	private int[] mouse_pos = new int[2];
 	
+	private boolean mouse_on_screen = false;
+	
 	public Screen(String title, int w, int h){
 		
 		frame = new JFrame(title);
@@ -39,6 +41,8 @@ public abstract class Screen extends Component implements KeyListener, MouseList
 		requestFocus();
 		setFocusable(true);
 		addKeyListener(this);
+		addMouseListener(this);
+		addMouseMotionListener(this);
 		
 		frame.pack();
 		frame.setVisible(true);
@@ -50,11 +54,17 @@ public abstract class Screen extends Component implements KeyListener, MouseList
 		super.paint(g);
 		onEachFrame(g);
 	}
-		
+	//TODO na valw kai gia to mouse an einai pressed 
 	public boolean isPressed(int key){
 		//TODO Check key value
 		return keys[key];
 	}
+	
+	public boolean isMouseOnScreen(){return mouse_on_screen;}
+	
+	public int getMouseX(){return mouse_pos[0];}
+	
+	public int getMouseY(){return mouse_pos[1];}
     
 	public JFrame getJFrame(){
 		return frame;
@@ -64,9 +74,20 @@ public abstract class Screen extends Component implements KeyListener, MouseList
 		frame.dispose();
 	}
 	
-	public boolean dealy(int ms){
-		//TODO 
-		return false;
+	public void delay(int ms){
+		if(ms<=0){
+			return;
+		}
+		long wakeup = System.currentTimeMillis()+ms;
+		try {
+			Thread.sleep(ms);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		while(System.currentTimeMillis()<wakeup){
+			continue;
+		}
 	}
 	
 	public abstract void onEachFrame(Graphics g) ;
@@ -95,10 +116,10 @@ public abstract class Screen extends Component implements KeyListener, MouseList
 	public void mouseDragged(MouseEvent e) {}
 	
 	@Override
-	public void mouseEntered(MouseEvent e) {}
+	public void mouseEntered(MouseEvent e) {mouse_on_screen = true;}
 	
 	@Override
-	public void mouseExited(MouseEvent e) {}
+	public void mouseExited(MouseEvent e) {mouse_on_screen = false;}
 	
 	@Override
 	public void keyPressed(KeyEvent e) {

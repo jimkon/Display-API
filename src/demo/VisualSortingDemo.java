@@ -6,8 +6,8 @@ import java.awt.Graphics;
 import java.util.Random;
 
 import screen.AutoRefreshScreen;
-import screen.Screen;
 
+@SuppressWarnings("serial")
 public class VisualSortingDemo extends AutoRefreshScreen{
 
 	public static void main(String[] args) {
@@ -22,7 +22,7 @@ public class VisualSortingDemo extends AutoRefreshScreen{
 	private int steps = 0;
 	private boolean done = false;
 	private int[] array;
-	private Random random= new Random();
+//	private Random random= new Random();
 	private long start, end;
 	private int fps = 0;
 	private long last_frame = 0;
@@ -69,7 +69,7 @@ public class VisualSortingDemo extends AutoRefreshScreen{
 		}
 		fps++;
 		if(System.currentTimeMillis()-last_frame>=1000){
-			System.out.println(fps);
+			System.out.println("fps="+fps);
 			fps=0;
 			last_frame = System.currentTimeMillis();
 		}

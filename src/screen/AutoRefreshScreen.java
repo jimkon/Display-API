@@ -3,11 +3,11 @@ package screen;
 @SuppressWarnings("serial")
 public abstract class AutoRefreshScreen extends Screen implements Runnable{
 
-	private static final int DEFAULT_FPS = 30;
+	public static final int NOT_LIMITED_FPS = -1;
 	
 	private Thread loop_thread;
 	
-	private int fps = -1;
+	private int fps = NOT_LIMITED_FPS;
 	private long last_frame = -1;
 	
 	public AutoRefreshScreen(String title, int w, int h, int fps) {
@@ -18,15 +18,12 @@ public abstract class AutoRefreshScreen extends Screen implements Runnable{
 	}
 
 	public void run(){
+		
 		while(true){
 			super.repaint();
 			last_frame = System.currentTimeMillis();
-			try {
-				long sleep_time = getFrameTime();
-				if(sleep_time>0){
-					Thread.sleep(sleep_time);
-				}
-			} catch (InterruptedException e) {	}
+			int sleep_time = (int) getFrameTime();
+			delay(sleep_time);
 		}
 	}
 	
@@ -43,7 +40,9 @@ public abstract class AutoRefreshScreen extends Screen implements Runnable{
 	}
 
 	public void  setFPS(int fps){
-		this.fps = (int) max(fps, DEFAULT_FPS);
+		if(fps!=0){
+			this.fps = fps;
+		}
 	}
 	
 	public void close(){
