@@ -10,6 +10,8 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import javax.swing.JFrame;
 
+//TODO na ftiaksw to resize me to scale
+//TODO na ftiaksw na mporeis na eksageis arxeio eikonas apo to screen, kai na vgazeis bufferedimage
 
 @SuppressWarnings("serial")
 public abstract class Screen extends Component implements KeyListener, MouseListener, MouseMotionListener{

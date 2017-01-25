@@ -16,10 +16,10 @@ public class FunctionPlot extends AutoRefreshScreen{
 	}
 
 	private ArrayList<PlotableFunction> plotableFunctions = new ArrayList<PlotableFunction>(); 
-	private int x0 = 400, y0 = 300;
+	private double minx, maxx, miny, maxy;
 	
 	public FunctionPlot() {
-		super("Function plot", 800, 500, 10);
+		super("Function plot", 800, 500, 20);
 		addFunction(new ExampleFunction());
 	}
 
@@ -30,64 +30,93 @@ public class FunctionPlot extends AutoRefreshScreen{
 		}
 	}
 	
-	public int getPixelX(double x){
-		return (int) (x/x_per_pix);
+	private double getX(int px){
+		return px*x_per_pix+minx;
 	}
 	
-	public int getPixelY(double y){
+	private int getPixelX(double x){
+//		System.out.println("min = "+minx+"   x="+x+"   px="+(int) ((x-minx)/x_per_pix));
+		return (int) ((x-minx)/x_per_pix);
+	}
+	
+	private int getPixelY(double y){
+//		System.out.println(y+"   "+miny+"   "+(int) (getHeight() - y/y_per_pix));
+		y -= miny;
 		return (int) (getHeight() - y/y_per_pix);
 	}
 	
+	private int F(PlotableFunction f, double x){
+//		System.out.println("x="+x+"     px="+p+"    fx="+f.f(x)+"      py="+getPixelY(f.f(x)));
+		return getPixelY(f.f(x));
+	}
+	
 	private void calcXYRatios(){
+		if(plotableFunctions.size()==0){
+			return;
+		}
 		PlotableFunction first = plotableFunctions.get(0);
-		double minx = first.getMinX(), maxx = first.getMaxX();
-		double miny = first.getMinY(), maxy = first.getMaxY();
+		minx = first.getMinX();
+		maxx = first.getMaxX();
+		miny = first.getMinY();
+		maxy = first.getMaxY();
 		for(int i=1; i<plotableFunctions.size(); i++){
 			minx = Math.min(minx, plotableFunctions.get(i).getMinX());
 			maxx = Math.max(maxx, plotableFunctions.get(i).getMaxX());
 			miny = Math.min(miny, plotableFunctions.get(i).getMinY());
 			maxy = Math.max(maxy, plotableFunctions.get(i).getMaxY());
 		}
+//		System.out.println("minx="+minx+"  maxx="+maxx+"  miny="+miny+"   maxy="+maxy);
 		x_per_pix = (maxx-minx)/getWidth();
 		y_per_pix = (maxy-miny)/getHeight();
-//		System.out.println(x_per_pix+"   "+(maxx-minx)+"   "+getWidth());
-//		System.out.println(y_per_pix+"   "+(maxy-miny)+"   "+getHeight());
+//		System.out.println("for x  step="+x_per_pix+"   range="+(maxx-minx)+"   "+getWidth());
+//		System.out.println("for y  "+y_per_pix+"   "+(maxy-miny)+"   "+getHeight());
 	}
 	
 	private double x_per_pix = 1, y_per_pix = 1;
 	@Override
 	public void onEachFrame(Graphics g) {
 		calcXYRatios();
+		
+		g.setColor(Color.DARK_GRAY);
+		if(maxx>0 && minx<0){
+			int x0 = getPixelX(0);
+			g.drawLine(x0, 0, x0, getHeight());
+		}
+		if(maxy>0 && miny<0){
+			int y0 = getPixelY(0);
+			g.drawLine(0, y0, getWidth(), y0);
+		}
+		
+		
 		for(int i=0; i<plotableFunctions.size(); i++){
 			PlotableFunction f = plotableFunctions.get(i);
 			g.setColor(f.getColor());
-			int s = getPixelX(f.getMinX());
-			int e = getPixelX(f.getMaxX());
-//			int sy = (int) (f.getMinY()/y_per_pix);
-//			int ey = (int) (f.getMaxY()/y_per_pix);
-//			System.out.println(s+"->"+s*x_per_pix+"   "+e+"->"+e*x_per_pix);
-//			System.out.println(sy+"->"+sy*y_per_pix+"   "+ey+"->"+ey*y_per_pix);
-			for(int j=s; j<=e; j++){
-				double x1 = j*x_per_pix, y1 = f.f(x1), x2 = (j+1)*x_per_pix, y2 = f.f(x2);
-				int py1 = getPixelY(y1), py2 =  getPixelY(y2);
-//				System.out.println("x="+x1+"   y="+y1+"    px="+j+"  py="+py1);
-				g.drawLine(j, py1, j+1, py2);
+			for(double j=f.getMinX(); j<f.getMaxX(); j+=x_per_pix){
+				g.drawLine(getPixelX(j), F(f, j), getPixelX(j+1), F(f, j+1));
 //				g.drawLine(j, y1, j, y1);
 			}
 		}
 //		System.out.println("asdasd       "+isMouseOnScreen());
 		if(isMouseOnScreen()){			
 			for(int i=0; i<plotableFunctions.size(); i++){
-				int stringX = getMouseX();
-				int stringY = getPixelY(plotableFunctions.get(i).f(stringX*x_per_pix));
 				PlotableFunction f = plotableFunctions.get(i);
+				int stringX = getMouseX();
+				double x = getX(stringX);
+				int stringY = F(f, x);
+				
 				g.setColor(f.getColor());
-				String string = "("+stringX*x_per_pix+", "+f.f(stringX*x_per_pix)+")";
+				String string = String.format("(%.3f, %.3f )",+x,f.f(x));
 				int stringW = g.getFontMetrics().stringWidth(string);
+				int stringH = g.getFontMetrics().getHeight();
 				if(getWidth()-stringX<stringW){
 					stringX -= stringW;
 				}
+				if(stringY<stringH){
+					stringY += 50;
+				}
 				g.drawString(string, stringX, stringY);
+				g.setColor(Color.lightGray);
+				g.drawLine(0, stringY, getWidth(), stringY);
 			}
 		}
 	}
@@ -97,25 +126,25 @@ public class FunctionPlot extends AutoRefreshScreen{
 		@Override
 		public double getMinX() {
 			// TODO Auto-generated method stub
-			return 0;
+			return -10;
 		}
 
 		@Override
 		public double getMaxX() {
 			// TODO Auto-generated method stub
-			return 200;
+			return 10;
 		}
 
 		@Override
 		public double f(double x) {
 			// TODO Auto-generated method stub
-			return x*x;
+			return x*x-2;
 		}
 
 		@Override
 		public double getMinY() {
 			// TODO Auto-generated method stub
-			return f(getMinX());
+			return f(0);
 		}
 
 		@Override
