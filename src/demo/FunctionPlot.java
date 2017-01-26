@@ -2,11 +2,9 @@ package demo;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.font.FontRenderContext;
 import java.util.ArrayList;
 
 import screen.AutoRefreshScreen;
-import screen.Screen;
 
 @SuppressWarnings("serial")
 public class FunctionPlot extends AutoRefreshScreen{
@@ -23,6 +21,7 @@ public class FunctionPlot extends AutoRefreshScreen{
 		addFunction(new ExampleFunction(1));
 		addFunction(new ExampleFunction(2));
 		addFunction(new ExampleFunction(3));
+		addFunction(new SinExampleFunction());
 	}
 
 	public void addFunction(PlotableFunction f){
@@ -36,24 +35,21 @@ public class FunctionPlot extends AutoRefreshScreen{
 		return px*x_per_pix+minx;
 	}
 	
+	@SuppressWarnings("unused")
 	private double getY(int py){
 		return (getHeight()-py)*y_per_pix+miny;
-		
 	}
 	
 	private int getPixelX(double x){
-//		System.out.println("min = "+minx+"   x="+x+"   px="+(int) ((x-minx)/x_per_pix));
 		return (int) ((x-minx)/x_per_pix);
 	}
 	
 	private int getPixelY(double y){
-//		System.out.println(y+"   "+miny+"   "+(int) (getHeight() - y/y_per_pix));
 		y -= miny;
 		return (int) (getHeight() - y/y_per_pix);
 	}
 	
 	private int F(PlotableFunction f, double x){
-//		System.out.println("x="+x+"     px="+p+"    fx="+f.f(x)+"      py="+getPixelY(f.f(x)));
 		return getPixelY(f.f(x));
 	}
 	
@@ -72,11 +68,8 @@ public class FunctionPlot extends AutoRefreshScreen{
 			miny = Math.min(miny, plotableFunctions.get(i).getMinY());
 			maxy = Math.max(maxy, plotableFunctions.get(i).getMaxY());
 		}
-//		System.out.println("minx="+minx+"  maxx="+maxx+"  miny="+miny+"   maxy="+maxy);
 		x_per_pix = (maxx-minx)/getWidth();
 		y_per_pix = (maxy-miny)/getHeight();
-//		System.out.println("for x  step="+x_per_pix+"   range="+(maxx-minx)+"   "+getWidth());
-//		System.out.println("for y  "+y_per_pix+"   "+(maxy-miny)+"   "+getHeight());
 	}
 	
 	private double x_per_pix = 1, y_per_pix = 1;
@@ -105,7 +98,6 @@ public class FunctionPlot extends AutoRefreshScreen{
 				int stringX = getMouseX();
 				double x = getX(stringX);
 				if(x<f.getMinX() || x>f.getMaxX()){
-//					System.out.println(x+"   "+f.getMinX()+"    "+f.getMaxX());
 					continue;
 				}
 				int stringY = F(f, x);
@@ -138,10 +130,8 @@ public class FunctionPlot extends AutoRefreshScreen{
 			g.setColor(f.getColor());
 			for(double j=f.getMinX(); j<=f.getMaxX(); j+=x_per_pix){
 				g.drawLine(getPixelX(j), F(f, j), getPixelX(j+x_per_pix), F(f, j+x_per_pix));
-//				g.drawLine(j, y1, j, y1);
 			}
 		}
-//		System.out.println("asdasd       "+isMouseOnScreen());
 		
 	}
 	
@@ -187,6 +177,45 @@ public class FunctionPlot extends AutoRefreshScreen{
 		public Color getColor() {
 			// TODO Auto-generated method stub
 			return new Color(30*c%255, 60*c%255, 90*c%255);
+		}
+		
+	}
+	class SinExampleFunction implements PlotableFunction{
+
+		@Override
+		public double getMinX() {
+			// TODO Auto-generated method stub
+			return -20;
+		}
+
+		@Override
+		public double getMaxX() {
+			// TODO Auto-generated method stub
+			return 60;
+		}
+
+		@Override
+		public double f(double x) {
+			// TODO Auto-generated method stub
+			return 5*Math.sin(x);
+		}
+
+		@Override
+		public double getMinY() {
+			// TODO Auto-generated method stub
+			return -5;
+		}
+
+		@Override
+		public double getMaxY() {
+			// TODO Auto-generated method stub
+			return 5;
+		}
+
+		@Override
+		public Color getColor() {
+			// TODO Auto-generated method stub
+			return Color.red;
 		}
 		
 	}
