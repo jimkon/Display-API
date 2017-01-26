@@ -20,7 +20,9 @@ public class FunctionPlot extends AutoRefreshScreen{
 	
 	public FunctionPlot() {
 		super("Function plot", 800, 500, 20);
-		addFunction(new ExampleFunction());
+		addFunction(new ExampleFunction(1));
+		addFunction(new ExampleFunction(2));
+		addFunction(new ExampleFunction(3));
 	}
 
 	public void addFunction(PlotableFunction f){
@@ -32,6 +34,11 @@ public class FunctionPlot extends AutoRefreshScreen{
 	
 	private double getX(int px){
 		return px*x_per_pix+minx;
+	}
+	
+	private double getY(int py){
+		return (getHeight()-py)*y_per_pix+miny;
+		
 	}
 	
 	private int getPixelX(double x){
@@ -77,7 +84,7 @@ public class FunctionPlot extends AutoRefreshScreen{
 	public void onEachFrame(Graphics g) {
 		calcXYRatios();
 		
-		g.setColor(Color.DARK_GRAY);
+		g.setColor(Color.GRAY);
 		if(maxx>0 && minx<0){
 			int x0 = getPixelX(0);
 			g.drawLine(x0, 0, x0, getHeight());
@@ -87,64 +94,87 @@ public class FunctionPlot extends AutoRefreshScreen{
 			g.drawLine(0, y0, getWidth(), y0);
 		}
 		
-		
-		for(int i=0; i<plotableFunctions.size(); i++){
-			PlotableFunction f = plotableFunctions.get(i);
-			g.setColor(f.getColor());
-			for(double j=f.getMinX(); j<f.getMaxX(); j+=x_per_pix){
-				g.drawLine(getPixelX(j), F(f, j), getPixelX(j+1), F(f, j+1));
-//				g.drawLine(j, y1, j, y1);
-			}
-		}
-//		System.out.println("asdasd       "+isMouseOnScreen());
 		if(isMouseOnScreen()){			
+			
 			for(int i=0; i<plotableFunctions.size(); i++){
+//				g.setColor(Color.BLACK);
+//				double xx = getX(getMouseX());
+//				double yy = getY(getMouseY());
+//				g.drawString(String.format("(%.3f, %.3f)  (%d, %d)", xx, yy, getMouseX(), getMouseY()), getMouseX()-100, getMouseY()+100);
 				PlotableFunction f = plotableFunctions.get(i);
 				int stringX = getMouseX();
 				double x = getX(stringX);
+				if(x<f.getMinX() || x>f.getMaxX()){
+//					System.out.println(x+"   "+f.getMinX()+"    "+f.getMaxX());
+					continue;
+				}
 				int stringY = F(f, x);
 				
 				g.setColor(f.getColor());
-				String string = String.format("(%.3f, %.3f )",+x,f.f(x));
+				String string = String.format("%.3f", f.f(x));
 				int stringW = g.getFontMetrics().stringWidth(string);
 				int stringH = g.getFontMetrics().getHeight();
+				g.setColor(Color.gray);
+				g.drawLine(0, stringY, getWidth(), stringY);
+				g.drawLine(stringX, 0, stringX, getHeight());
+				g.drawString(String.format("%.3f", x) , stringX, getMouseY());
 				if(getWidth()-stringX<stringW){
 					stringX -= stringW;
 				}
 				if(stringY<stringH){
-					stringY += 50;
+					stringY += stringH;
 				}
+				g.setColor(f.getColor());
 				g.drawString(string, stringX, stringY);
-				g.setColor(Color.lightGray);
-				g.drawLine(0, stringY, getWidth(), stringY);
+				g.setColor(Color.gray);
+				
+				
 			}
 		}
+		
+		
+		for(int i=0; i<plotableFunctions.size(); i++){
+			PlotableFunction f = plotableFunctions.get(i);
+			g.setColor(f.getColor());
+			for(double j=f.getMinX(); j<=f.getMaxX(); j+=x_per_pix){
+				g.drawLine(getPixelX(j), F(f, j), getPixelX(j+x_per_pix), F(f, j+x_per_pix));
+//				g.drawLine(j, y1, j, y1);
+			}
+		}
+//		System.out.println("asdasd       "+isMouseOnScreen());
+		
 	}
 	
 	class ExampleFunction implements PlotableFunction{
 
+		public ExampleFunction(int c) {
+			this.c = c;
+		}
+		
+		int c = 1;
+		
 		@Override
 		public double getMinX() {
 			// TODO Auto-generated method stub
-			return -10;
+			return -10*c;
 		}
 
 		@Override
 		public double getMaxX() {
 			// TODO Auto-generated method stub
-			return 10;
+			return 10*c;
 		}
 
 		@Override
 		public double f(double x) {
 			// TODO Auto-generated method stub
-			return x*x-2;
+			return x*c;
 		}
 
 		@Override
 		public double getMinY() {
 			// TODO Auto-generated method stub
-			return f(0);
+			return f(getMinX());
 		}
 
 		@Override
@@ -156,7 +186,7 @@ public class FunctionPlot extends AutoRefreshScreen{
 		@Override
 		public Color getColor() {
 			// TODO Auto-generated method stub
-			return Color.red;
+			return new Color(30*c%255, 60*c%255, 90*c%255);
 		}
 		
 	}
