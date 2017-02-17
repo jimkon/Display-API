@@ -13,6 +13,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.image.BufferedImage;
 
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 
 //TODO na ftiaksw to resize me to scale
@@ -121,6 +122,18 @@ public abstract class Screen extends Component {
 	}
 	
 	public abstract void onEachFrame(Graphics g) ;
+
+	//TODO test
+	public BufferedImage getScreenCopy(){
+		BufferedImage res = new BufferedImage(getResolutionWidth(), getResolutionHeight(), BufferedImage.TYPE_4BYTE_ABGR);
+		Graphics graphs = res.getGraphics();
+		graphs.drawImage(image, 0, 0, null);
+		return res;
+	}
+	//TODO implement and test
+	public void printScreen(String path, String name){
+		//ImageIO.write(getScreenCopy(), formatName, output);
+	}
 	
 	private void addAdapters(){
 		addKeyListener(new KeyAdapter() {
