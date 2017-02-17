@@ -6,11 +6,11 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseMotionAdapter;
 import java.awt.image.BufferedImage;
 
 import javax.swing.JFrame;
@@ -21,7 +21,7 @@ import javax.swing.JFrame;
 
 
 @SuppressWarnings("serial")
-public abstract class Screen extends Component implements KeyListener, MouseListener, MouseMotionListener{
+public abstract class Screen extends Component {
 	
 	private JFrame frame;
 	
@@ -36,14 +36,13 @@ public abstract class Screen extends Component implements KeyListener, MouseList
 	private int[] mouse_pos = new int[2];
 	
 	private boolean mouse_on_screen = false;
-	int k = 0;
+	
 	public Screen(String title, int w, int h){
 		image = new BufferedImage(w, h, BufferedImage.TYPE_4BYTE_ABGR);
 		graphics = image.getGraphics();
 		
 		frame = new JFrame(title);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);     //
-		//frame.setResizable(false);
 		
 		Dimension dim = new Dimension(w, h);
 		setSize(dim);
@@ -54,19 +53,7 @@ public abstract class Screen extends Component implements KeyListener, MouseList
 		
 		requestFocus();
 		setFocusable(true);
-		addKeyListener(this);
-		addMouseListener(this);
-		addMouseMotionListener(this);
-		addComponentListener(new ComponentAdapter(){
-			public void componentResized(ComponentEvent e) {
-				super.componentResized(e);
-				if(!autofit){
-					image = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_4BYTE_ABGR);
-					graphics = image.getGraphics();
-				}
-				//System.out.println(getResolutionWidth()+", "+getResolutionHeight());
-			}
-		});
+		addAdapters();
 		
 		frame.pack();
 		frame.setVisible(true);
@@ -76,7 +63,6 @@ public abstract class Screen extends Component implements KeyListener, MouseList
 	
 	public void paint(Graphics g){
 		super.paint(g);
-		//System.out.println(image.getWidth()+"  "+ image.getHeight()+"    "+ getWidth()+"    "+getHeight());
 		graphics.setColor(Color.WHITE);
 		graphics.fillRect(0, 0, getResolutionWidth(), getResolutionHeight());
 		onEachFrame(graphics);
@@ -95,10 +81,13 @@ public abstract class Screen extends Component implements KeyListener, MouseList
 		autofit = b;
 	}
 	
-	//TODO na valw kai gia to mouse an einai pressed 
+	public boolean isMousePressed(int key){
+		return mouse_keys[key%mouse_keys.length];
+	}
+	
 	public boolean isPressed(int key){
 		//TODO Check key value
-		return keys[key];
+		return keys[key%keys.length];
 	}
 	
 	public boolean isMouseOnScreen(){return mouse_on_screen;}
@@ -133,47 +122,53 @@ public abstract class Screen extends Component implements KeyListener, MouseList
 	
 	public abstract void onEachFrame(Graphics g) ;
 	
-	/// overrides
-	@Override
-	public void mousePressed(MouseEvent e) {
-		mouse_keys[e.getButton()-1] = true; //NOBUTTON = 0
+	private void addAdapters(){
+		addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				keys[e.getKeyCode()] = true;
+			}
+			
+			@Override
+			public void keyReleased(KeyEvent e) {
+				keys[e.getKeyCode()] = false;
+			}
+		});
+		addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent e) {
+				mouse_keys[e.getButton()-1] = true; //NOBUTTON = 0
+			}
+			
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				mouse_keys[e.getButton()-1] = false; //NOBUTTON = 0
+			}
+			
+			@Override
+			public void mouseEntered(MouseEvent e) {mouse_on_screen = true;}
+			
+			@Override
+			public void mouseExited(MouseEvent e) {mouse_on_screen = false;}
+		});
+		addMouseMotionListener(new MouseMotionAdapter() {
+			@Override
+			public void mouseMoved(MouseEvent e) {
+				mouse_pos[0] = e.getX();
+				mouse_pos[1] = e.getY();
+			}
+		});
+		addComponentListener(new ComponentAdapter(){
+			public void componentResized(ComponentEvent e) {
+				super.componentResized(e);
+				if(!autofit){
+					image = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_4BYTE_ABGR);
+					graphics = image.getGraphics();
+				}
+				//System.out.println(getResolutionWidth()+", "+getResolutionHeight());
+			}
+		});
 	}
 	
-	@Override
-	public void mouseReleased(MouseEvent e) {
-		mouse_keys[e.getButton()-1] = false; //NOBUTTON = 0
-	}
-	
-	@Override
-	public void mouseClicked(MouseEvent e) {}
-	
-	@Override
-	public void mouseMoved(MouseEvent e) {
-		mouse_pos[0] = e.getX();
-		mouse_pos[1] = e.getY();
-	}
-	
-	@Override
-	public void mouseDragged(MouseEvent e) {}
-	
-	@Override
-	public void mouseEntered(MouseEvent e) {mouse_on_screen = true;}
-	
-	@Override
-	public void mouseExited(MouseEvent e) {mouse_on_screen = false;}
-	
-	@Override
-	public void keyPressed(KeyEvent e) {
-		keys[e.getKeyCode()] = true;
-	}
-	
-	@Override
-	public void keyReleased(KeyEvent e) {
-		keys[e.getKeyCode()] = false;
-	}
-	
-	@Override
-	public void keyTyped(KeyEvent e) {}
-
 	
 }
