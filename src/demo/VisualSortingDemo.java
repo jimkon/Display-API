@@ -42,7 +42,7 @@ public class VisualSortingDemo extends AutoRefreshScreen{
 	@Override
 	public void onEachFrame(Graphics g) {
 		if(getWidth()!=800){
-			System.out.println("width  =  "+getWidth());
+			//System.out.println("width  =  "+getWidth());
 		}
 		g.setColor(Color.BLUE);
 		g.fillRect(0, 0, getWidth(), getHeight());

@@ -17,7 +17,7 @@ public class FunctionPlot extends AutoRefreshScreen{
 	private double minx, maxx, miny, maxy;
 	
 	public FunctionPlot() {
-		super("Function plot", 800, 500, 20);
+		super("Function plot", 800, 500, 60);
 		addFunction(new ExampleFunction(1));
 		addFunction(new ExampleFunction(2));
 		addFunction(new ExampleFunction(3));
@@ -37,7 +37,7 @@ public class FunctionPlot extends AutoRefreshScreen{
 	
 	@SuppressWarnings("unused")
 	private double getY(int py){
-		return (getHeight()-py)*y_per_pix+miny;
+		return (getResolutionHeight()-py)*y_per_pix+miny;
 	}
 	
 	private int getPixelX(double x){
@@ -46,7 +46,7 @@ public class FunctionPlot extends AutoRefreshScreen{
 	
 	private int getPixelY(double y){
 		y -= miny;
-		return (int) (getHeight() - y/y_per_pix);
+		return (int) (getResolutionHeight() - y/y_per_pix);
 	}
 	
 	private int F(PlotableFunction f, double x){
@@ -68,8 +68,9 @@ public class FunctionPlot extends AutoRefreshScreen{
 			miny = Math.min(miny, plotableFunctions.get(i).getMinY());
 			maxy = Math.max(maxy, plotableFunctions.get(i).getMaxY());
 		}
-		x_per_pix = (maxx-minx)/getWidth();
-		y_per_pix = (maxy-miny)/getHeight();
+//		System.out.println(getResolutionWidth()+","+getResolutionHeight());
+		x_per_pix = (maxx-minx)/getResolutionWidth();
+		y_per_pix = (maxy-miny)/getResolutionHeight();
 	}
 	
 	private double x_per_pix = 1, y_per_pix = 1;
@@ -80,11 +81,11 @@ public class FunctionPlot extends AutoRefreshScreen{
 		g.setColor(Color.GRAY);
 		if(maxx>0 && minx<0){
 			int x0 = getPixelX(0);
-			g.drawLine(x0, 0, x0, getHeight());
+			g.drawLine(x0, 0, x0, getResolutionHeight());
 		}
 		if(maxy>0 && miny<0){
 			int y0 = getPixelY(0);
-			g.drawLine(0, y0, getWidth(), y0);
+			g.drawLine(0, y0, getResolutionWidth(), y0);
 		}
 		
 		if(isMouseOnScreen()){			
@@ -107,10 +108,10 @@ public class FunctionPlot extends AutoRefreshScreen{
 				int stringW = g.getFontMetrics().stringWidth(string);
 				int stringH = g.getFontMetrics().getHeight();
 				g.setColor(Color.gray);
-				g.drawLine(0, stringY, getWidth(), stringY);
-				g.drawLine(stringX, 0, stringX, getHeight());
+				g.drawLine(0, stringY, getResolutionWidth(), stringY);
+				g.drawLine(stringX, 0, stringX, getResolutionHeight());
 				g.drawString(String.format("%.3f", x) , stringX, getMouseY());
-				if(getWidth()-stringX<stringW){
+				if(getResolutionWidth()-stringX<stringW){
 					stringX -= stringW;
 				}
 				if(stringY<stringH){
