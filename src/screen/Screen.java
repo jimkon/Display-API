@@ -1,23 +1,33 @@
 package screen;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.image.BufferedImage;
+
 import javax.swing.JFrame;
 
 //TODO na ftiaksw to resize me to scale
+// na dw ti tha kanw me ta scroll bar (auto scale disabled)
 //TODO na ftiaksw na mporeis na eksageis arxeio eikonas apo to screen, kai na vgazeis bufferedimage
+
 
 @SuppressWarnings("serial")
 public abstract class Screen extends Component implements KeyListener, MouseListener, MouseMotionListener{
 	
 	private JFrame frame;
 	
+	private BufferedImage image;
+	private Graphics graphics;
+	private boolean autofit = true;
 	
 	private boolean[] keys = new boolean[256];
 	
@@ -26,12 +36,14 @@ public abstract class Screen extends Component implements KeyListener, MouseList
 	private int[] mouse_pos = new int[2];
 	
 	private boolean mouse_on_screen = false;
-	
+	int k = 0;
 	public Screen(String title, int w, int h){
+		image = new BufferedImage(w, h, BufferedImage.TYPE_4BYTE_ABGR);
+		graphics = image.getGraphics();
 		
 		frame = new JFrame(title);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);     //
-		frame.setResizable(false);
+		//frame.setResizable(false);
 		
 		Dimension dim = new Dimension(w, h);
 		setSize(dim);
@@ -45,6 +57,16 @@ public abstract class Screen extends Component implements KeyListener, MouseList
 		addKeyListener(this);
 		addMouseListener(this);
 		addMouseMotionListener(this);
+		addComponentListener(new ComponentAdapter(){
+			public void componentResized(ComponentEvent e) {
+				super.componentResized(e);
+				if(!autofit){
+					image = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_4BYTE_ABGR);
+					graphics = image.getGraphics();
+				}
+				//System.out.println(getResolutionWidth()+", "+getResolutionHeight());
+			}
+		});
 		
 		frame.pack();
 		frame.setVisible(true);
@@ -54,8 +76,25 @@ public abstract class Screen extends Component implements KeyListener, MouseList
 	
 	public void paint(Graphics g){
 		super.paint(g);
-		onEachFrame(g);
+		//System.out.println(image.getWidth()+"  "+ image.getHeight()+"    "+ getWidth()+"    "+getHeight());
+		graphics.setColor(Color.WHITE);
+		graphics.fillRect(0, 0, getResolutionWidth(), getResolutionHeight());
+		onEachFrame(graphics);
+		g.drawImage(image, 0, 0, getWidth(), getHeight(), null);
 	}
+	
+	public int getResolutionHeight() {
+		return image.getHeight();
+	}
+	
+	public int getResolutionWidth() {
+		return image.getWidth();
+	}
+	
+	public void setAutoFit(boolean b){
+		autofit = b;
+	}
+	
 	//TODO na valw kai gia to mouse an einai pressed 
 	public boolean isPressed(int key){
 		//TODO Check key value
