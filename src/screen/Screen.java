@@ -12,6 +12,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
@@ -87,7 +89,6 @@ public abstract class Screen extends Component {
 	}
 	
 	public boolean isPressed(int key){
-		//TODO Check key value
 		return keys[key%keys.length];
 	}
 	
@@ -130,9 +131,10 @@ public abstract class Screen extends Component {
 		graphs.drawImage(image, 0, 0, null);
 		return res;
 	}
-	//TODO implement and test
-	public void printScreen(String path, String name){
-		//ImageIO.write(getScreenCopy(), formatName, output);
+	//TODO test
+	public void printScreen(String path, String name, String ext) throws IOException{
+		File file = new File(path+"\\"+name+"."+ext); 
+		ImageIO.write(getScreenCopy(), ext, file);
 	}
 	
 	private void addAdapters(){
