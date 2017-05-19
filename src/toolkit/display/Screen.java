@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Point;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.KeyAdapter;
@@ -18,8 +19,8 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 
-//TODO na ftiaksw to resize me to scale
 // na dw ti tha kanw me ta scroll bar (auto scale disabled)
+// na ftiaksw ta x y se point
 //TODO na ftiaksw na mporeis na eksageis arxeio eikonas apo to screen, kai na vgazeis bufferedimage
 
 
@@ -27,6 +28,8 @@ import javax.swing.JFrame;
 public abstract class Screen extends Component {
 	
 	private JFrame frame;
+	
+	private Color background = Color.white;
 	
 	private BufferedImage image;
 	private Graphics graphics;
@@ -37,6 +40,7 @@ public abstract class Screen extends Component {
 	private boolean[] mouse_keys = new boolean[3];
 	
 	private int[] mouse_pos = new int[2];
+	private Point mouse_click_pos = new Point(0, 0);
 	
 	private boolean mouse_on_screen = false;
 	
@@ -64,9 +68,13 @@ public abstract class Screen extends Component {
 		
 	}
 	
+	public void setBackground(int r, int g, int b){
+		background = new Color(r, g, b);
+	}
+	
 	public void paint(Graphics g){
 		super.paint(g);
-		graphics.setColor(Color.WHITE);
+		graphics.setColor(background);
 		graphics.fillRect(0, 0, getResolutionWidth(), getResolutionHeight());
 		onEachFrame(graphics);
 		g.drawImage(image, 0, 0, getWidth(), getHeight(), null);
@@ -97,6 +105,10 @@ public abstract class Screen extends Component {
 	public int getMouseX(){return mouse_pos[0];}
 	
 	public int getMouseY(){return mouse_pos[1];}
+	
+	public Point getMouseClick(){
+		return mouse_click_pos;
+	}
     
 	public JFrame getJFrame(){
 		return frame;
@@ -152,6 +164,7 @@ public abstract class Screen extends Component {
 		addMouseListener(new MouseAdapter() {
 			@Override
 			public void mousePressed(MouseEvent e) {
+				mouse_click_pos.setLocation(getMouseX(), getMouseY());
 				mouse_keys[e.getButton()-1] = true; //NOBUTTON = 0
 			}
 			

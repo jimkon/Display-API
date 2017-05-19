@@ -7,7 +7,7 @@ public abstract class AutoRefreshScreen extends Screen implements Runnable{
 	
 	private Thread loop_thread;
 	
-	private int fps = NOT_LIMITED_FPS;
+	private int fps = NOT_LIMITED_FPS, actual_fps = 0;
 	private long last_frame = -1;
 	
 	public AutoRefreshScreen(String title, int w, int h, int fps) {
@@ -18,11 +18,18 @@ public abstract class AutoRefreshScreen extends Screen implements Runnable{
 	}
 
 	public void run(){
-		
+		long last = System.currentTimeMillis();
+		int count_fps = 0;
 		while(true){
+			if(System.currentTimeMillis()-last>=1000){
+				actual_fps = count_fps;
+				count_fps = 0;
+				last = System.currentTimeMillis();
+			}
 			super.repaint();
 			last_frame = System.currentTimeMillis();
 			int sleep_time = (int) getFrameTime();
+			count_fps++;
 			delay(sleep_time);
 		}
 	}
@@ -43,6 +50,10 @@ public abstract class AutoRefreshScreen extends Screen implements Runnable{
 		if(fps!=0){
 			this.fps = fps;
 		}
+	}
+	
+	public int getFPS(){
+		return actual_fps;
 	}
 	
 	public void close(){
