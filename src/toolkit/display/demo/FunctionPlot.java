@@ -1,10 +1,10 @@
-package demo;
+package toolkit.display.demo;
 
 import java.awt.Color;
 import java.awt.Graphics;
 import java.util.ArrayList;
 
-import screen.AutoRefreshScreen;
+import toolkit.display.AutoRefreshScreen;
 
 @SuppressWarnings("serial")
 public class FunctionPlot extends AutoRefreshScreen{

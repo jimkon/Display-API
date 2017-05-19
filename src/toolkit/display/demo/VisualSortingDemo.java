@@ -1,11 +1,11 @@
-package demo;
+package toolkit.display.demo;
 
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.util.Random;
 
-import screen.AutoRefreshScreen;
+import toolkit.display.AutoRefreshScreen;
 
 @SuppressWarnings("serial")
 public class VisualSortingDemo extends AutoRefreshScreen{

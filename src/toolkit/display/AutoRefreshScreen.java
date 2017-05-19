@@ -1,4 +1,4 @@
-package screen;
+package toolkit.display;
 
 @SuppressWarnings("serial")
 public abstract class AutoRefreshScreen extends Screen implements Runnable{
@@ -14,7 +14,6 @@ public abstract class AutoRefreshScreen extends Screen implements Runnable{
 		super(title, w, h);
 		setFPS(fps);
 		loop_thread = new Thread(this);
-		loop_thread.start();
 	}
 
 	public void run(){
@@ -34,6 +33,10 @@ public abstract class AutoRefreshScreen extends Screen implements Runnable{
 		}
 	}
 	
+	public void start(){
+		loop_thread.start();
+	}
+	
 	public int getTimePerFrame(){
 		return 1000/fps;
 	}
@@ -47,7 +50,7 @@ public abstract class AutoRefreshScreen extends Screen implements Runnable{
 	}
 
 	public void  setFPS(int fps){
-		if(fps!=0){
+		if(fps!=0){ 
 			this.fps = fps;
 		}
 	}

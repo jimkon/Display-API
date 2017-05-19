@@ -1,4 +1,4 @@
-package screen;
+package toolkit.display;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -96,9 +96,9 @@ public abstract class Screen extends Component {
 		return mouse_keys[key%mouse_keys.length];
 	}
 	
-	public boolean isPressed(int key){
+	/*public boolean isPressed(int key){
 		return keys[key%keys.length];
-	}
+	}*/
 	
 	public boolean isMouseOnScreen(){return mouse_on_screen;}
 	
@@ -150,7 +150,7 @@ public abstract class Screen extends Component {
 	}
 	
 	private void addAdapters(){
-		addKeyListener(new KeyAdapter() {
+		/*addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				keys[e.getKeyCode()] = true;
@@ -160,7 +160,7 @@ public abstract class Screen extends Component {
 			public void keyReleased(KeyEvent e) {
 				keys[e.getKeyCode()] = false;
 			}
-		});
+		});*/
 		addMouseListener(new MouseAdapter() {
 			@Override
 			public void mousePressed(MouseEvent e) {

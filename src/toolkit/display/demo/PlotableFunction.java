@@ -1,4 +1,4 @@
-package demo;
+package toolkit.display.demo;
 
 import java.awt.Color;
 
