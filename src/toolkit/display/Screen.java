@@ -1,9 +1,11 @@
 package toolkit.display;
 
+import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
@@ -18,6 +20,8 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 // na dw ti tha kanw me ta scroll bar (auto scale disabled)
 // na ftiaksw ta x y se point
@@ -25,7 +29,7 @@ import javax.swing.JFrame;
 
 
 @SuppressWarnings("serial")
-public abstract class Screen extends Component {
+public abstract class Screen extends JPanel {
 	
 	private JFrame frame;
 	
@@ -40,7 +44,9 @@ public abstract class Screen extends Component {
 	private boolean[] mouse_keys = new boolean[3];
 	
 	private int[] mouse_pos = new int[2];
-	private Point mouse_click_pos = new Point(0, 0);
+	private Point mouse_click_pos = null;
+	private Point mouse_press_pos = null;
+	private Point mouse_release_pos = null;
 	
 	private boolean mouse_on_screen = false;
 	
@@ -48,15 +54,20 @@ public abstract class Screen extends Component {
 		image = new BufferedImage(w, h, BufferedImage.TYPE_4BYTE_ABGR);
 		graphics = image.getGraphics();
 		
+		
 		frame = new JFrame(title);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);     //
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // TODO
+		//frame.setSize(w+10, h+40);
 		
 		Dimension dim = new Dimension(w, h);
 		setSize(dim);
 		setPreferredSize(dim);
 		setMaximumSize(dim);
 		setMaximumSize(dim);
-		frame.add(this);
+		//setBounds(0, 0, dim.width, dim.height);
+		frame.setContentPane(this);
+		//frame.getContentPane().add(this);
+		
 		
 		requestFocus();
 		setFocusable(true);
@@ -65,11 +76,15 @@ public abstract class Screen extends Component {
 		frame.pack();
 		frame.setVisible(true);
 		frame.setLocationRelativeTo(null);
-		
+
 	}
 	
 	public void setBackground(int r, int g, int b){
 		background = new Color(r, g, b);
+	}
+	
+	public void setBackground(Color c){
+		background = c;
 	}
 	
 	public void paint(Graphics g){
@@ -108,6 +123,14 @@ public abstract class Screen extends Component {
 	
 	public Point getMouseClick(){
 		return mouse_click_pos;
+	}
+	
+	public Point getMousePress(){
+		return mouse_press_pos;
+	}
+	
+	public Point getMouseUnpress(){
+		return mouse_release_pos;
 	}
     
 	public JFrame getJFrame(){
@@ -164,13 +187,19 @@ public abstract class Screen extends Component {
 		addMouseListener(new MouseAdapter() {
 			@Override
 			public void mousePressed(MouseEvent e) {
-				mouse_click_pos.setLocation(getMouseX(), getMouseY());
+				mouse_press_pos = new Point(getMouseX(), getMouseY());
 				mouse_keys[e.getButton()-1] = true; //NOBUTTON = 0
 			}
 			
 			@Override
 			public void mouseReleased(MouseEvent e) {
+				mouse_release_pos = new Point(getMouseX(), getMouseY());
 				mouse_keys[e.getButton()-1] = false; //NOBUTTON = 0
+			}
+			
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				mouse_click_pos = new Point(getMouseX(), getMouseY());
 			}
 			
 			@Override
@@ -182,6 +211,15 @@ public abstract class Screen extends Component {
 		addMouseMotionListener(new MouseMotionAdapter() {
 			@Override
 			public void mouseMoved(MouseEvent e) {
+				mouse_pos[0] = e.getX();
+				mouse_pos[1] = e.getY();
+				
+				//mouse_pos[0] = SwingUtilities.convertMouseEvent(e.getComponent(), e, Screen.this).getX();TODO
+				//mouse_pos[1] = SwingUtilities.convertMouseEvent(e.getComponent(), e, Screen.this).getY();TODO
+			}
+			
+			@Override
+			public void mouseDragged(MouseEvent e) {
 				mouse_pos[0] = e.getX();
 				mouse_pos[1] = e.getY();
 			}
